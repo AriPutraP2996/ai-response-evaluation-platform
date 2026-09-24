@@ -1,26 +1,44 @@
 [
   {
-    "id": "sample-001",
-    "prompt": "Explain why data validation is important before training a machine-learning model.",
-    "response": "Data validation helps detect missing, invalid, inconsistent, and duplicate records before they affect model training. It improves dataset reliability and makes downstream evaluation easier to interpret.",
-    "expected_topics": [
-      "missing",
-      "invalid",
-      "duplicate",
-      "training"
+    "id": "response-001",
+    "prompt": "Explain why data validation is important.",
+    "response": "Data validation is important because it helps ensure that data is accurate, complete, consistent, and suitable for downstream analysis. It can identify invalid values, missing fields, and unexpected formats before they affect reports or automated systems.",
+    "required_phrases": [
+      "data validation",
+      "accurate",
+      "complete"
     ],
-    "instruction": "Answer concisely and focus on practical reasons."
+    "required_sections": [
+      "important",
+      "data"
+    ]
   },
   {
-    "id": "sample-002",
-    "prompt": "Explain why data validation is important before training a machine-learning model.",
-    "response": "Data is important. Machine learning uses data to learn patterns.",
-    "expected_topics": [
-      "missing",
-      "invalid",
-      "duplicate",
-      "training"
+    "id": "response-002",
+    "prompt": "Explain why automated testing is useful.",
+    "response": "Automated testing helps developers detect regressions quickly and provides a repeatable way to verify that software behaves as expected. Tests can run consistently in development and continuous integration environments.",
+    "required_phrases": [
+      "automated testing",
+      "regressions",
+      "repeatable"
     ],
-    "instruction": "Answer concisely and focus on practical reasons."
+    "required_sections": [
+      "testing",
+      "tests"
+    ]
+  },
+  {
+    "id": "response-003",
+    "prompt": "Describe a simple data-quality workflow.",
+    "response": "A simple data-quality workflow can validate incoming records, identify missing or invalid values, generate quality metrics, and produce a report for review. The workflow should be repeatable so that changes in data quality can be tracked over time.",
+    "required_phrases": [
+      "data-quality",
+      "validate",
+      "report"
+    ],
+    "required_sections": [
+      "workflow",
+      "quality"
+    ]
   }
 ]
