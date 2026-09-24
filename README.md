@@ -4,69 +4,193 @@ A reproducible Python framework for rubric-based evaluation of AI-generated resp
 
 ## Overview
 
-This portfolio project demonstrates a transparent evaluation workflow for comparing AI-generated responses against explicit criteria.
+AI systems can produce responses that appear fluent and useful while still failing important requirements such as instruction following, completeness, or response quality.
 
-The framework is designed around four core dimensions:
+This project provides a small, transparent evaluation framework for scoring AI-generated responses against explicit evaluation criteria.
 
-- **Relevance** — Does the response address the requested task?
-- **Completeness** — Does it cover the important requirements?
-- **Clarity** — Is the response understandable and well structured?
-- **Instruction Following** — Does it follow explicit constraints?
+The goal is to make AI response evaluation:
 
-The project intentionally uses a small synthetic dataset so the methodology can be inspected and reproduced without exposing client or private data.
+- Structured
+- Reproducible
+- Transparent
+- Testable
+- Easy to extend
+
+## What This Project Demonstrates
+
+This repository demonstrates practical skills in:
+
+- AI response evaluation
+- Rubric-based scoring
+- Python development
+- Structured data processing
+- Automated testing
+- Reproducible workflows
+- GitHub Actions / CI
+- Technical documentation
+
+## Evaluation Approach
+
+The evaluation framework is designed around explicit criteria rather than an unstructured overall impression.
+
+A response can be assessed using defined evaluation dimensions such as:
+
+1. Response quality
+2. Instruction following
+3. Completeness
+4. Overall rubric-based assessment
+
+The resulting evaluation can then be processed into a structured report.
 
 ## Project Structure
 
 ```text
 ai-response-evaluation-platform/
+│
 ├── data/
 │   └── sample_responses.json
+│
 ├── src/
 │   ├── __init__.py
 │   ├── evaluator.py
 │   └── report.py
+│
 ├── tests/
 │   └── test_evaluator.py
+│
 ├── .github/
 │   └── workflows/
 │       └── ci.yml
-├── requirements.txt
-└── README.md
+│
+├── README.md
+└── requirements.txt
 ```
 
-## Quick Start
+## Architecture
 
-```bash
-python -m pip install -r requirements.txt
-python -m src.report
+```text
+Input Responses
+      │
+      ▼
+Evaluation Criteria
+      │
+      ▼
+Response Evaluator
+      │
+      ▼
+Structured Scores
+      │
+      ▼
+Evaluation Report
 ```
 
-The command evaluates the sample responses and prints a compact summary.
+The project separates evaluation logic from reporting so that the evaluation process can be tested and extended independently.
 
-## Evaluation Model
+## Example Workflow
 
-Each criterion is scored from **1 to 5**. The overall score is the arithmetic mean of the four criterion scores.
+A typical workflow is:
 
-This is a demonstration framework, not a claim that a single numeric score can fully measure response quality. In real evaluation work, the rubric and scoring policy should be adapted to the task.
-
-## Example Use Cases
-
-- Benchmarking alternative AI responses
-- Human-in-the-loop quality review
-- Dataset quality checks before model evaluation
-- Regression testing for prompt changes
-- Building structured annotation workflows
+```text
+1. Provide an AI-generated response
+2. Define the evaluation criteria
+3. Run the evaluator
+4. Produce structured evaluation results
+5. Generate a report
+```
 
 ## Testing
 
-Run:
+The project includes automated tests for the evaluation logic.
+
+Run the test suite locally with:
 
 ```bash
 pytest -q
 ```
 
-GitHub Actions runs the test suite automatically on pushes and pull requests.
+The repository also uses GitHub Actions to automatically run the test suite when changes are pushed to the `main` branch or submitted through a pull request.
 
-## Portfolio Note
+## Continuous Integration
 
-This repository is a demonstration project created to show practical methodology for AI evaluation, data quality, Python automation, and reproducible workflows. It does not contain confidential client data.
+The CI workflow performs the following steps:
+
+```text
+Checkout repository
+        ↓
+Set up Python
+        ↓
+Install dependencies
+        ↓
+Run automated tests
+```
+
+A successful CI run provides a basic verification that the project remains executable after changes.
+
+## Data
+
+Sample response data is provided in:
+
+```text
+data/sample_responses.json
+```
+
+The sample data is intended to demonstrate the structure used by the evaluation workflow.
+
+## Design Principles
+
+### Reproducibility
+
+The evaluation workflow should be runnable consistently from a clean environment.
+
+### Transparency
+
+Evaluation criteria and scoring logic should be understandable rather than hidden behind an unexplained overall score.
+
+### Testability
+
+Core evaluation behavior should be covered by automated tests.
+
+### Extensibility
+
+The project structure should make it possible to add additional evaluation criteria, response datasets, and reporting functionality.
+
+## Limitations
+
+This is a portfolio project demonstrating the engineering concepts behind structured AI response evaluation.
+
+It is not intended to represent a complete production-grade AI evaluation platform.
+
+Future iterations can extend the project with additional evaluation criteria, larger datasets, model-based evaluation, experiment tracking, and more comprehensive reporting.
+
+## Roadmap
+
+Planned improvements include:
+
+- [ ] Expand evaluation criteria
+- [ ] Add more representative evaluation datasets
+- [ ] Improve evaluation reports
+- [ ] Add command-line usage
+- [ ] Add additional automated tests
+- [ ] Add evaluation result examples
+- [ ] Explore model-assisted evaluation
+- [ ] Add experiment tracking
+
+## Why This Project Exists
+
+AI evaluation is not only about determining whether an answer looks good.
+
+A useful evaluation system should make it possible to understand:
+
+- What was evaluated
+- Which criteria were applied
+- How the result was produced
+- Whether the evaluation can be reproduced
+- Whether the implementation can be tested and extended
+
+This project explores those principles through a small Python-based evaluation framework.
+
+## Author
+
+**Ari Putra Pratama**
+
+AI Evaluation • Data Quality • Python Automation • Data Research
