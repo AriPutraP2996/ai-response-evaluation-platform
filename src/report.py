@@ -1,37 +1,63 @@
+"""Reporting utilities for evaluation results."""
+
 from __future__ import annotations
 
 import json
 from pathlib import Path
+from typing import Any
 
-from src.evaluator import score_response
-
-
-ROOT = Path(__file__).resolve().parents[1]
-DATA_PATH = ROOT / "data" / "sample_responses.json"
+from .evaluator import EvaluationResult
 
 
-def main() -> None:
-    records = json.loads(DATA_PATH.read_text(encoding="utf-8"))
+def build_report(
+    evaluations: list[EvaluationResult],
+) -> dict[str, Any]:
+    """Build a structured report from evaluation results."""
+    if not evaluations:
+        return {
+            "count": 0,
+            "average_overall_score": 0.0,
+            "pass_rate": 0.0,
+            "evaluations": [],
+        }
 
-    print("AI Response Evaluation Report")
-    print("=" * 32)
+    average_score = round(
+        sum(item.overall_score for item in evaluations)
+        / len(evaluations),
+        2,
+    )
 
-    for record in records:
-        result = score_response(
-            prompt=record["prompt"],
-            response=record["response"],
-            expected_topics=record["expected_topics"],
-            instruction=record.get("instruction", ""),
-        )
-        print(f"{record['id']}: overall={result.overall}/5")
-        print(
-            "  "
-            f"relevance={result.relevance}, "
-            f"completeness={result.completeness}, "
-            f"clarity={result.clarity}, "
-            f"instruction_following={result.instruction_following}"
-        )
+    passed_count = sum(item.passed for item in evaluations)
+
+    pass_rate = round(
+        (passed_count / len(evaluations)) * 100,
+        2,
+    )
+
+    return {
+        "count": len(evaluations),
+        "average_overall_score": average_score,
+        "pass_rate": pass_rate,
+        "evaluations": [
+            item.to_dict()
+            for item in evaluations
+        ],
+    }
 
 
-if __name__ == "__main__":
-    main()
+def save_report(
+    evaluations: list[EvaluationResult],
+    output_path: str | Path,
+) -> Path:
+    """Build and save a JSON report."""
+    path = Path(output_path)
+    path.parent.mkdir(parents=True, exist_ok=True)
+
+    report = build_report(evaluations)
+
+    path.write_text(
+        json.dumps(report, indent=2),
+        encoding="utf-8",
+    )
+
+    return path
