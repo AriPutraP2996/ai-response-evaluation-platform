@@ -21,6 +21,7 @@ dist/
 
 # Generated reports
 reports/*.json
+reports/*.md
 
 # IDE
 .vscode/
