@@ -106,7 +106,7 @@ reports/evaluation_report.json
 reports/evaluation_report.md
 ```
 
-Generated reports are intentionally ignored by Git because they are reproducible build artifacts.
+Generated reports are intentionally ignored by Git because they are reproducible build artifacts. A static example is available at [`examples/sample_evaluation_report.json`](examples/sample_evaluation_report.json).
 
 ## CLI Options
 
@@ -155,6 +155,10 @@ Each evaluation sample follows this structure:
 
 This makes the evaluation inputs explicit and easy to extend.
 
+## Methodology
+
+The scoring rules are documented in [`docs/evaluation-methodology.md`](docs/evaluation-methodology.md). The methodology is deliberately deterministic and makes no claim to establish factual correctness.
+
 ## Testing
 
 The test suite covers:
@@ -202,8 +206,15 @@ ai-response-evaluation-platform/
 │   └── report.py
 ├── tests/
 │   └── test_evaluator.py
+├── docs/
+│   └── evaluation-methodology.md
+├── examples/
+│   └── sample_evaluation_report.json
 ├── .gitignore
+├── CONTRIBUTING.md
+├── LICENSE
 ├── README.md
+├── SECURITY.md
 ├── requirements.txt
 └── run_evaluation.py
 ```
@@ -268,6 +279,8 @@ CI verification
 ## Author
 
 **Ari Putra**
+
+Portfolio: [github.com/AriPutraP2996](https://github.com/AriPutraP2996)
 
 Focus areas:
 
