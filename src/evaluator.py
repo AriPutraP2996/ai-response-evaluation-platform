@@ -1,71 +1,194 @@
+"""Core rubric-based evaluation logic.
+
+The evaluator is intentionally deterministic and dependency-light.
+It evaluates an AI-generated response against explicit criteria:
+
+- instruction following
+- completeness
+- response quality
+
+The scoring approach is designed to be transparent and reproducible.
+"""
+
 from __future__ import annotations
 
-from dataclasses import dataclass
-import re
-from typing import Iterable
+from dataclasses import asdict, dataclass
+from typing import Any
 
 
 @dataclass(frozen=True)
-class Evaluation:
-    relevance: float
-    completeness: float
-    clarity: float
+class EvaluationResult:
+    """Structured result returned by the evaluator."""
+
     instruction_following: float
+    completeness: float
+    response_quality: float
+    overall_score: float
+    passed: bool
 
-    @property
-    def overall(self) -> float:
-        return round(
-            (
-                self.relevance
-                + self.completeness
-                + self.clarity
-                + self.instruction_following
-            )
-            / 4,
-            2,
-        )
+    def to_dict(self) -> dict[str, Any]:
+        """Return the evaluation result as a dictionary."""
+        return asdict(self)
 
 
-def _clamp(score: float) -> float:
-    return max(1.0, min(5.0, round(score, 2)))
+def _clamp_score(value: float) -> float:
+    """Keep a score inside the supported 0-100 range."""
+    return max(0.0, min(100.0, float(value)))
 
 
-def score_response(
-    prompt: str,
+def _score_instruction_following(
     response: str,
-    expected_topics: Iterable[str],
-    instruction: str = "",
-) -> Evaluation:
-    """Apply a small deterministic demonstration rubric.
+    required_phrases: list[str] | None = None,
+) -> float:
+    """Score whether the response appears to follow explicit requirements.
 
-    This is intentionally simple and transparent. It is not a replacement
-    for expert human evaluation.
+    When required phrases are provided, the score is based on how many
+    required phrases occur in the response.
+
+    When no phrases are provided, a non-empty response receives a neutral
+    score of 100 because there are no explicit phrase-level requirements
+    to test.
     """
-    response_lower = response.lower()
-    topics = [topic.lower() for topic in expected_topics if topic.strip()]
-    matched = sum(1 for topic in topics if topic in response_lower)
+    if not response.strip():
+        return 0.0
 
-    relevance = 5.0 if prompt.strip() and response.strip() else 1.0
-    completeness = _clamp(1.0 + 4.0 * (matched / len(topics))) if topics else 3.0
+    if not required_phrases:
+        return 100.0
 
-    sentences = [s for s in re.split(r"[.!?]+", response) if s.strip()]
-    avg_sentence_length = (
-        sum(len(s.split()) for s in sentences) / len(sentences)
-        if sentences
-        else 0
+    normalized_response = response.casefold()
+
+    matches = sum(
+        1
+        for phrase in required_phrases
+        if phrase.strip().casefold() in normalized_response
     )
-    clarity = 5.0 if 8 <= avg_sentence_length <= 28 else 3.5
-    if len(response.split()) < 8:
-        clarity = 2.5
 
-    instruction_lower = instruction.lower()
-    concise_requested = "concis" in instruction_lower
-    word_count = len(response.split())
-    instruction_following = 5.0 if not concise_requested or word_count <= 80 else 3.0
+    return _clamp_score((matches / len(required_phrases)) * 100)
 
-    return Evaluation(
-        relevance=relevance,
-        completeness=completeness,
-        clarity=clarity,
-        instruction_following=instruction_following,
+
+def _score_completeness(
+    response: str,
+    required_sections: list[str] | None = None,
+) -> float:
+    """Score whether required sections/content are present."""
+    if not response.strip():
+        return 0.0
+
+    if not required_sections:
+        return 100.0
+
+    normalized_response = response.casefold()
+
+    matches = sum(
+        1
+        for section in required_sections
+        if section.strip().casefold() in normalized_response
+    )
+
+    return _clamp_score((matches / len(required_sections)) * 100)
+
+
+def _score_response_quality(response: str) -> float:
+    """Apply simple deterministic quality checks.
+
+    This is intentionally not an LLM-based quality judgment.
+    It checks observable properties such as:
+
+    - non-empty response
+    - reasonable length
+    - sentence structure
+    - absence of excessive whitespace
+    """
+    text = response.strip()
+
+    if not text:
+        return 0.0
+
+    score = 60.0
+
+    if len(text) >= 40:
+        score += 10.0
+
+    if len(text) >= 100:
+        score += 10.0
+
+    if any(character in text for character in ".!?"):
+        score += 10.0
+
+    if "\n\n" in text:
+        score += 5.0
+
+    if "  " not in text:
+        score += 5.0
+
+    return _clamp_score(score)
+
+
+def evaluate_response(
+    response: str,
+    *,
+    required_phrases: list[str] | None = None,
+    required_sections: list[str] | None = None,
+    pass_threshold: float = 70.0,
+) -> EvaluationResult:
+    """Evaluate an AI-generated response.
+
+    Args:
+        response:
+            The response text to evaluate.
+
+        required_phrases:
+            Optional phrases that should appear in the response.
+
+        required_sections:
+            Optional content markers that should appear in the response.
+
+        pass_threshold:
+            Minimum overall score required for a passing result.
+
+    Returns:
+        EvaluationResult containing criterion-level scores and an
+        overall score.
+
+    Raises:
+        TypeError:
+            If response is not a string.
+
+        ValueError:
+            If pass_threshold is outside the 0-100 range.
+    """
+    if not isinstance(response, str):
+        raise TypeError("response must be a string")
+
+    if not 0 <= pass_threshold <= 100:
+        raise ValueError("pass_threshold must be between 0 and 100")
+
+    instruction_score = _score_instruction_following(
+        response,
+        required_phrases,
+    )
+
+    completeness_score = _score_completeness(
+        response,
+        required_sections,
+    )
+
+    quality_score = _score_response_quality(response)
+
+    overall_score = round(
+        (
+            instruction_score
+            + completeness_score
+            + quality_score
+        )
+        / 3,
+        2,
+    )
+
+    return EvaluationResult(
+        instruction_following=round(instruction_score, 2),
+        completeness=round(completeness_score, 2),
+        response_quality=round(quality_score, 2),
+        overall_score=overall_score,
+        passed=overall_score >= pass_threshold,
     )
