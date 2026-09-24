@@ -1,0 +1,26 @@
+[
+  {
+    "id": "sample-001",
+    "prompt": "Explain why data validation is important before training a machine-learning model.",
+    "response": "Data validation helps detect missing, invalid, inconsistent, and duplicate records before they affect model training. It improves dataset reliability and makes downstream evaluation easier to interpret.",
+    "expected_topics": [
+      "missing",
+      "invalid",
+      "duplicate",
+      "training"
+    ],
+    "instruction": "Answer concisely and focus on practical reasons."
+  },
+  {
+    "id": "sample-002",
+    "prompt": "Explain why data validation is important before training a machine-learning model.",
+    "response": "Data is important. Machine learning uses data to learn patterns.",
+    "expected_topics": [
+      "missing",
+      "invalid",
+      "duplicate",
+      "training"
+    ],
+    "instruction": "Answer concisely and focus on practical reasons."
+  }
+]
