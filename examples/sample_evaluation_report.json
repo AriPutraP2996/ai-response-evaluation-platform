@@ -1,0 +1,31 @@
+{
+  "count": 3,
+  "average_overall_score": 96.67,
+  "pass_rate": 100.0,
+  "evaluations": [
+    {
+      "instruction_following": 100.0,
+      "completeness": 100.0,
+      "response_quality": 90.0,
+      "overall_score": 96.67,
+      "passed": true,
+      "sample_id": "response-001"
+    },
+    {
+      "instruction_following": 100.0,
+      "completeness": 100.0,
+      "response_quality": 90.0,
+      "overall_score": 96.67,
+      "passed": true,
+      "sample_id": "response-002"
+    },
+    {
+      "instruction_following": 100.0,
+      "completeness": 100.0,
+      "response_quality": 90.0,
+      "overall_score": 96.67,
+      "passed": true,
+      "sample_id": "response-003"
+    }
+  ]
+}
