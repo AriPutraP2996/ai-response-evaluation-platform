@@ -1,0 +1,28 @@
+{
+  "count": 3,
+  "average_overall_score": 100.0,
+  "pass_rate": 100.0,
+  "evaluations": [
+    {
+      "instruction_following": 100.0,
+      "completeness": 100.0,
+      "response_quality": 100.0,
+      "overall_score": 100.0,
+      "passed": true
+    },
+    {
+      "instruction_following": 100.0,
+      "completeness": 100.0,
+      "response_quality": 100.0,
+      "overall_score": 100.0,
+      "passed": true
+    },
+    {
+      "instruction_following": 100.0,
+      "completeness": 100.0,
+      "response_quality": 100.0,
+      "overall_score": 100.0,
+      "passed": true
+    }
+  ]
+}
