@@ -4,57 +4,274 @@ A reproducible Python framework for evaluating AI-generated responses against ex
 
 ![CI](https://github.com/AriPutraP2996/ai-response-evaluation-platform/actions/workflows/ci.yml/badge.svg)
 
----
-
 ## Overview
 
-AI-generated responses can appear fluent and useful while still failing important requirements such as instruction following, completeness, or response quality.
+AI-generated responses can be fluent and useful while still failing explicit requirements. This project demonstrates a small, deterministic evaluation pipeline that converts response requirements into structured scores and machine-readable reports.
 
-This project demonstrates a small, transparent evaluation framework that converts qualitative response requirements into structured and reproducible evaluation scores.
+The design intentionally favors:
 
-The system is intentionally deterministic and dependency-light so that the evaluation process can be inspected, tested, and reproduced.
-
----
+- transparent scoring rules
+- deterministic behavior
+- dependency-light Python
+- automated tests
+- reproducible execution
+- CI verification
 
 ## What This Project Demonstrates
 
-- AI response evaluation
-- Rubric-based scoring
-- Instruction-following evaluation
-- Completeness evaluation
-- Deterministic quality checks
+- Rubric-based AI response evaluation
+- Instruction-following checks
+- Completeness checks
+- Deterministic response-quality checks
 - Structured JSON reporting
-- Python development
-- Automated testing
+- Human-readable Markdown reporting
+- Python automation
+- Automated testing with pytest
 - GitHub Actions CI
-- Reproducible workflows
-- Technical documentation
+- Reproducible evaluation workflows
 
----
+## Evaluation Dimensions
 
-## Evaluation Framework
-
-Each response is evaluated across three dimensions:
-
-| Dimension | Description |
+| Dimension | What is checked |
 |---|---|
-| Instruction Following | Checks whether explicitly required phrases are present |
-| Completeness | Checks whether required content markers or sections are present |
-| Response Quality | Applies deterministic checks for response structure and basic quality |
+| Instruction Following | Presence of explicitly required phrases |
+| Completeness | Presence of required content markers |
+| Response Quality | Observable properties such as length, punctuation, and whitespace |
+| Overall Score | Mean of the three dimension scores |
+| Pass / Fail | Overall score compared with a configurable threshold |
 
-The three criterion scores are combined into an overall score.
+Scores are normalized to a 0-100 scale.
+
+> The response-quality checks are intentionally deterministic. They do not establish factual correctness or replace human/LLM-based evaluation.
+
+## Architecture
 
 ```text
-Instruction Following
-        │
-        ▼
-Completeness
-        │
-        ▼
-Response Quality
-        │
-        ▼
-Overall Score
-        │
-        ▼
-Pass / Fail
+data/sample_responses.json
+          |
+          v
+   run_evaluation.py
+          |
+          v
+    src/evaluator.py
+          |
+          v
+ EvaluationResult
+          |
+          v
+      src/report.py
+       /        \
+      v          v
+ JSON report   Markdown report
+          |
+          v
+   GitHub Actions CI
+```
+
+## Quick Start
+
+Requirements:
+
+- Python 3.11+
+- pip
+
+Install dependencies:
+
+```bash
+python -m pip install -r requirements.txt
+```
+
+Run the test suite:
+
+```bash
+python -m pytest -q
+```
+
+Run the evaluation pipeline:
+
+```bash
+python run_evaluation.py
+```
+
+The pipeline reads:
+
+```text
+data/sample_responses.json
+```
+
+and generates:
+
+```text
+reports/evaluation_report.json
+reports/evaluation_report.md
+```
+
+Generated reports are intentionally ignored by Git because they are reproducible build artifacts.
+
+## CLI Options
+
+The pipeline supports configurable input, output, and pass threshold:
+
+```bash
+python run_evaluation.py \
+  --input data/sample_responses.json \
+  --output reports/evaluation_report.json \
+  --markdown-output reports/evaluation_report.md \
+  --threshold 70
+```
+
+## Example Output
+
+```text
+response-001: score=96.67, passed=True
+response-002: score=96.67, passed=True
+response-003: score=96.67, passed=True
+
+JSON report: .../reports/evaluation_report.json
+Markdown report: .../reports/evaluation_report.md
+```
+
+The exact score depends on the dataset and rubric configuration.
+
+## Dataset Schema
+
+Each evaluation sample follows this structure:
+
+```json
+{
+  "id": "response-001",
+  "prompt": "Explain why data validation is important.",
+  "response": "Generated response text...",
+  "required_phrases": [
+    "data validation",
+    "accurate"
+  ],
+  "required_sections": [
+    "important",
+    "data"
+  ]
+}
+```
+
+This makes the evaluation inputs explicit and easy to extend.
+
+## Testing
+
+The test suite covers:
+
+- structured evaluation results
+- instruction-following failures
+- completeness failures
+- empty responses
+- invalid thresholds
+- invalid response types
+- blank requirement handling
+- report aggregation
+- Markdown report generation
+- report file creation
+
+Run:
+
+```bash
+python -m pytest -q
+```
+
+## Continuous Integration
+
+Every push to `main` and every pull request targeting `main` runs:
+
+1. dependency installation
+2. automated tests
+3. the executable evaluation pipeline
+4. evaluation report artifact generation
+
+This ensures that both the evaluator and the end-to-end pipeline remain executable.
+
+## Project Structure
+
+```text
+ai-response-evaluation-platform/
+├── .github/
+│   └── workflows/
+│       └── ci.yml
+├── data/
+│   └── sample_responses.json
+├── src/
+│   ├── __init__.py
+│   ├── evaluator.py
+│   └── report.py
+├── tests/
+│   └── test_evaluator.py
+├── .gitignore
+├── README.md
+├── requirements.txt
+└── run_evaluation.py
+```
+
+## Design Principles
+
+### 1. Transparency
+
+Each score comes from visible deterministic rules rather than an opaque model judgment.
+
+### 2. Reproducibility
+
+The same response and rubric inputs produce the same result.
+
+### 3. Testability
+
+Core evaluation and reporting behavior is covered by automated tests.
+
+### 4. Separation of Concerns
+
+Evaluation logic, reporting, test data, and CI configuration are kept separate.
+
+### 5. Honest Scope
+
+This project does not claim to solve factuality, semantic correctness, safety, or production-scale evaluation. Those require additional evidence, reference data, or model-assisted/human review.
+
+## Limitations
+
+The current evaluator is intentionally small. Phrase matching does not understand synonyms or semantic equivalence, and deterministic quality checks cannot judge whether a response is factually correct.
+
+A stronger production-oriented system could add:
+
+- weighted rubrics
+- semantic similarity checks
+- reference-answer comparison
+- factual-evidence verification
+- larger benchmark datasets
+- experiment tracking
+- model-assisted judging with calibration
+- richer analytics
+
+Those capabilities are future extensions rather than claims about the current implementation.
+
+## Why This Project Exists
+
+The project demonstrates practical skills in turning qualitative AI-response requirements into an inspectable software workflow:
+
+```text
+Requirement
+    ↓
+Evaluation rubric
+    ↓
+Deterministic scoring
+    ↓
+Structured result
+    ↓
+Automated report
+    ↓
+CI verification
+```
+
+## Author
+
+**Ari Putra**
+
+Focus areas:
+
+- AI Evaluation
+- Data Quality
+- Python Automation
+- Data Research
